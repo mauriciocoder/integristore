@@ -25,6 +25,11 @@ This example is an app that provides a solution for a shopping cart using Angula
 - I also use Flyway to manage relational database migrations.
 
 
+## Containers
+
+![Alt text](/containers.png?raw=true "Optional Title")
+
+
 ## Build
 
 - FrontEnd App
