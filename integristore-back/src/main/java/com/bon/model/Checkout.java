@@ -1,11 +1,19 @@
 package com.bon.model;
 
+import com.bon.config.Action;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.List;
 
-// TODO: Add Validation
 // TODO: Change price for String
 @Entity
+@Getter
+@Setter
 public class Checkout {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -13,9 +21,11 @@ public class Checkout {
     private long id;
 
     @Embedded
+    @NotNull
     private CreditCard creditCard;
 
     @OneToMany(cascade = CascadeType.MERGE)
+    @NotNull
     @JoinTable(name = "checkout_product"
             , joinColumns = { @JoinColumn(name = "checkout_id") }
             , inverseJoinColumns = { @JoinColumn(name = "product_id") })
@@ -23,35 +33,20 @@ public class Checkout {
 
     private double cartPrice;
 
-    public long getId() {
-        return id;
+    @AssertTrue(groups = {Action.Update.class, Action.Create.class}, message = "Cart price is not valid")
+    private boolean isCartPriceValid() {
+        return cartPrice > 0;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    @AssertTrue(groups = {Action.Update.class, Action.Create.class}, message = "Card number is not valid")
+    private boolean isCardNumberValid() {
+        return creditCard.getCardNumber() > 0;
     }
 
-    public CreditCard getCreditCard() {
-        return creditCard;
-    }
-
-    public void setCreditCard(CreditCard creditCard) {
-        this.creditCard = creditCard;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
-    public double getCartPrice() {
-        return cartPrice;
-    }
-
-    public void setCartPrice(double cartPrice) {
-        this.cartPrice = cartPrice;
+    @AssertTrue(groups = {Action.Update.class, Action.Create.class}, message = "Card expiration date is not valid")
+    private boolean isCardDateValid() {
+        return creditCard.getExpDateMonth() > 0
+                && creditCard.getExpDateMonth() <= 12
+                && creditCard.getExpDateYear() > 16;
     }
 }
